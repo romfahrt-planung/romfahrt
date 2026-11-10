@@ -1,6 +1,6 @@
 # Romfahrt – Belegungsplaner
 
-**👉 Zur Seite: [lueb-sammlung.github.io/romfahrt](https://lueb-sammlung.github.io/romfahrt/)**
+**👉 Zur Seite: [romfahrt-planung.github.io/romfahrt](https://romfahrt-planung.github.io/romfahrt/)**
 
 Planer zum Verteilen der Klassen auf die Bungalows im Feriendorf und auf die Busse.
 
