@@ -203,6 +203,9 @@ function sexesIn(kind,id){return new Set(Object.keys(state[kind][id]||{}).map(g=
 const teachersIn=id=>{const o=state.b[id]||{};return (o["Lehrkräfte_m"]||0)+(o["Lehrkräfte_j"]||0)};
 const busWarn=id=>used("b",id)>0&&teachersIn(id)<2; // occupied bus with fewer than 2 teachers
 const warnText=id=>{const k=teachersIn(id);return k===0?"Keine Lehrkraft im Bus":"Nur 1 Lehrkraft im Bus"};
+// teachers and students never share a bungalow (buses are fine)
+const isT=g=>G[g]?.cls==="Lehrkräfte";
+const teacherClash=(id,gid)=>{const ks=Object.keys(state.u[id]||{});return ks.length>0&&ks.some(k=>isT(k)!==isT(gid))};
 const colorOf=sex=>sex==="m"?"var(--girl)":"var(--boy)";
 
 /* ---------- build map ---------- */
@@ -322,7 +325,7 @@ function render(){
     el.querySelector(".n").textContent=r;
     el.classList.toggle("done",r===0);
     el.classList.toggle("over",r<0); // more placed than the class has (e.g. after a correction)
-    const blocked=!!(sel&&sel.kind==="u"&&r>0&&(()=>{const sx=sexesIn("u",sel.id);return sx.size&&!sx.has(g.sex)})());
+    const blocked=!!(sel&&sel.kind==="u"&&r>0&&(()=>{const sx=sexesIn("u",sel.id);return (sx.size&&!sx.has(g.sex))||teacherClash(sel.id,g.id)})());
     el.classList.toggle("blocked",blocked);
     el.classList.toggle("ready",!!sel&&r>0&&!blocked&&!readOnly);
     el.classList.toggle("picked",picked===g.id);
@@ -370,6 +373,7 @@ function assign(kind,id,gid,want){
   if(kind==="u"){
     const sx=sexesIn("u",id);
     if(sx.size&&!sx.has(G[gid].sex)){toast(`Bungalow ${id} ist schon mit ${sexName([...sx][0])} belegt.`);return 0}
+    if(teacherClash(id,gid)){toast(G[gid].cls==="Lehrkräfte"?`In Bungalow ${id} wohnen Schüler – Lehrkräfte bitte in einen eigenen Bungalow.`:`Bungalow ${id} ist ein Lehrerbungalow – Schüler bitte woanders unterbringen.`);return 0}
   }
   const k=Math.min(free,r,want??Infinity);
   state[kind][id]??={};
